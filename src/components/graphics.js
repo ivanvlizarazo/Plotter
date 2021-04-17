@@ -109,9 +109,8 @@ export default function Graphic() {
   function onClick(idx) {
     setOptions({
       ...options,
-      series: [
-        ...options.series,
-        {
+      series: [...options.series,
+        { name:`Función ${idx+1}`,
           data: Line(
             parseInt(data[idx].x_coef),
             parseInt(data[idx].y_coef),

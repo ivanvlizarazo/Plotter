@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from 'clsx';
+import clsx from "clsx";
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Grid, IconButton, InputAdornment } from "@material-ui/core";
+import { Button, Grid, IconButton, InputAdornment } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import Drawer from "@material-ui/core/Drawer";
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import CustomizedSlider from './Slider'
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import CustomizedSlider from "./Slider";
 
 const drawerWidth = 460;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
+    display: "flex",
   },
   formControl: {
     minWidth: 65,
@@ -39,14 +39,14 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: -drawerWidth,
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
@@ -56,15 +56,19 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     marginTop: theme.spacing(2),
     background: theme.palette.primary.main,
-    color: "#fff"
+    color: "#fff",
   },
   hide: {
-    display: 'none',
+    display: "none",
   },
 }));
 
 export default function Graphic() {
   const classes = useStyles();
+  const [P, setP] = useState(0);
+  const [X, setX] = useState();
+  const [Y, setY] = useState();
+  const [target, setTarget] = useState();
   const [data, setData] = useState([
     { x_coef: "", y_coef: "", const: "", symbol: "<=" },
   ]);
@@ -72,11 +76,11 @@ export default function Graphic() {
   const [options, setOptions] = useState({
     chart: {
       type: "area",
-      zoomType: 'xy'
+      zoomType: "xy",
     },
     title: null,
     series: [],
-    credits:false,
+    credits: false,
     plotOptions: {
       series: {
         marker: {
@@ -105,22 +109,25 @@ export default function Graphic() {
   function onClick(idx) {
     setOptions({
       ...options,
-      series: [...options.series,
+      series: [
+        ...options.series,
         {
           data: Line(
             parseInt(data[idx].x_coef),
             parseInt(data[idx].y_coef),
             parseInt(data[idx].const)
           ),
-          threshold: data[idx].symbol === ">" || data[idx].symbol === ">=" ? Infinity : -Infinity,
-          dashStyle: data[idx].symbol === ">" || data[idx].symbol === "<" ? 'longdash':'solid'
+          threshold:
+            data[idx].symbol === ">" || data[idx].symbol === ">="
+              ? Infinity
+              : -Infinity,
+          dashStyle:
+            data[idx].symbol === ">" || data[idx].symbol === "<"
+              ? "longdash"
+              : "solid",
         },
-        
       ],
     });
-
-   
-
   }
 
   function point(a, b, c) {
@@ -139,19 +146,29 @@ export default function Graphic() {
     setData([...data, { x_coef: "", y_coef: "", const: "", symbol: "<=" }]);
   }
 
+  function getPValue(value) {
+    setP(value);
+  }
+
+  useEffect(() => {
+    setTarget(Line(X, Y, P));
+  }, [X, Y, P]);
+
   return (
     <div className={classes.root}>
+      {console.log(target)}
       <Grid container direction="row" spacing={2}>
-        <div >
-        <IconButton
-          color="inherit"
-          aria-label="open drawer"
-          onClick={handleDrawerOpen}
-          edge="start"
-          className={clsx(classes.menuButton, open && classes.hide)}
-        >
-          <ChevronRightIcon />
-        </IconButton></div>
+        <div>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            className={clsx(classes.menuButton, open && classes.hide)}
+          >
+            <ChevronRightIcon />
+          </IconButton>
+        </div>
         <Drawer
           className={classes.drawer}
           variant="persistent"
@@ -162,18 +179,14 @@ export default function Graphic() {
           }}
         >
           <div className={classes.drawerHeader}>
-            <IconButton onClick={handleDrawerClose} className={classes.menuButton}>
-                <ChevronLeftIcon />
+            <IconButton
+              onClick={handleDrawerClose}
+              className={classes.menuButton}
+            >
+              <ChevronLeftIcon />
             </IconButton>
           </div>
-          <Grid
-            container
-            item
-            direction="column"
-            xs={11}
-            
-            alignItems="center"
-          >
+          <Grid container item direction="column" xs={11} alignItems="center">
             {data.map((equation, index) => (
               <Grid
                 container
@@ -254,9 +267,57 @@ export default function Graphic() {
                 <AddIcon />
               </IconButton>
             </Grid>
-            <Grid item>
-              <CustomizedSlider/>
-            </Grid>
+
+            
+              
+              <Grid
+                container
+                item
+                direction="row"
+                spacing={2}
+                justify="center"
+                alignItems="center"
+              >
+                <Grid item xs={4}>
+                  Funcion objetivo
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    className={classes.input}
+                    fullWidth
+                    id="X"
+                    name="const"
+                    onChange={(e) => setX(parseInt(e.target.value))}
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">X</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    className={classes.input}
+                    fullWidth
+                    id="Y"
+                    name="const"
+                    onChange={(e) => setY(parseInt(e.target.value))}
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">Y</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={3}>
+                  <div> = P</div>
+                </Grid>
+              </Grid>
+             
+                <CustomizedSlider getPValue={getPValue} />
+             
           </Grid>
         </Drawer>
         <Grid

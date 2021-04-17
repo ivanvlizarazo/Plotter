@@ -5,6 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import { theme } from "highcharts";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,11 +45,12 @@ const PrettoSlider = withStyles({
   },
 })(Slider);
 
-export default function CustomizedSlider() {
+export default function CustomizedSlider(props) {
   const classes = useStyles();
   const [value, setValue] = useState(0);
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(100);
+  props.getPValue(value)
 
   const handleSliderChange = (event, newValue) => {
     if (isNaN(min)) {

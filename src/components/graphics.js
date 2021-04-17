@@ -1,34 +1,72 @@
-import React, { useState, useEffect } from "react";
-import InputLabel from "@material-ui/core/InputLabel";
+import React, { useState } from "react";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
+import { makeStyles } from "@material-ui/core/styles";
+import clsx from 'clsx';
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { makeStyles } from "@material-ui/core/styles";
-const math = require("mathjs");
+import { Grid, IconButton, InputAdornment } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
+import Drawer from "@material-ui/core/Drawer";
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+
+const drawerWidth = 460;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    margin: theme.spacing(2),
-    minWidth: 120,
-    alignSelf: "center",
+    display: 'flex',
   },
   formControl: {
-   
-    minWidth: 120,
+    minWidth: 65,
+  },
+  input: {
+    "& .MuiInputBase-input": {
+      textAlign: "end",
+    },
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+  },
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: -drawerWidth,
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  },
+  menuButton: {
+    marginLeft: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    background: theme.palette.primary.main,
+    color: "#fff"
+  },
+  hide: {
+    display: 'none',
   },
 }));
 
 export default function Graphic() {
   const classes = useStyles();
-  const [A, setA] = useState("");
-  const [B, setB] = useState("");
-  const [C, setC] = useState("");
-  const [result, setResult] = useState();
-  const [fill, setFill] = useState();
+  const [data, setData] = useState([
+    { x_coef: "", y_coef: "", const: "", symbol: "<=" },
+  ]);
 
   const [options, setOptions] = useState({
     chart: {
@@ -39,7 +77,7 @@ export default function Graphic() {
     },
     series: [
       {
-        data: [],
+        data: [{}],
       },
     ],
     plotOptions: {
@@ -51,27 +89,33 @@ export default function Graphic() {
     },
   });
 
-  function onChangeA(e) {
-    setA(e.target.value);
-  }
-  function onChangeB(e) {
-    setB(e.target.value);
-  }
-  function onChangeC(e) {
-    setC(e.target.value);
-  }
-  function onChangeFill(e) {
-    setFill(e.target.value);
+  const [open, setOpen] = useState(false);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  function onChange(e, index) {
+    var state = [...data];
+    state[index] = { ...state[index], [e.target.name]: e.target.value };
+    setData(state);
   }
 
-  function onClick() {
-    setResult(math.evaluate(A));
+  function onClick(idx) {
     setOptions({
       ...options,
       series: [
         {
-          data: Line(parseInt(A), parseInt(B), parseInt(C)),
-          threshold: fill === "Infinity" ? Infinity : -Infinity,
+          data: Line(
+            parseInt(data[idx].x_coef),
+            parseInt(data[idx].y_coef),
+            parseInt(data[idx].const)
+          ),
+          // threshold: fill === "Infinity" ? Infinity : -Infinity,
         },
       ],
     });
@@ -89,49 +133,143 @@ export default function Graphic() {
     return line;
   }
 
+  function addRow() {
+    setData([...data, { x_coef: "", y_coef: "", const: "", symbol: "<=" }]);
+  }
+
   return (
-    <div style={{ marginTop: "50px" }}>
-    
-        X:
-        <TextField
-          id="outlined-basic"
-          onChange={(e) => onChangeA(e)}
-          label="X"
-          variant="outlined"
-        />
-        Y:
-        <TextField
-          id="outlined-basic"
-          onChange={(e) => onChangeB(e)}
-          label="Y"
-          variant="outlined"
-        />
-        Fill:{" "}
-        <FormControl variant="outlined" className={classes.formControl} >
-          <InputLabel id="demo-simple-select-outlined-label">Inecuación</InputLabel>
-          <Select
-            labelId="demo-simple-select-outlined-label"
-            id="demo-simple-select-outlined"
-            onChange={(e) => onChangeFill(e)}
-            label="Inecuación"
+    <div className={classes.root}>
+      <Grid container direction="row" spacing={2}>
+        <div >
+        <IconButton
+          color="inherit"
+          aria-label="open drawer"
+          onClick={handleDrawerOpen}
+          edge="start"
+          className={clsx(classes.menuButton, open && classes.hide)}
+        >
+          <ChevronRightIcon />
+        </IconButton></div>
+        <Drawer
+          className={classes.drawer}
+          variant="persistent"
+          anchor="left"
+          open={open}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+        >
+          <div className={classes.drawerHeader}>
+            <IconButton onClick={handleDrawerClose} className={classes.menuButton}>
+                <ChevronLeftIcon />
+            </IconButton>
+          </div>
+          <Grid
+            container
+            item
+            direction="column"
+            xs={11}
+            
+            alignItems="center"
           >
-            <MenuItem value={'>='}> mayor o igual</MenuItem>
-            <MenuItem value={'<='}>menor o igual</MenuItem>
-            <MenuItem value={'>'}> mayor</MenuItem>
-            <MenuItem value={'<'}>menor</MenuItem>
-          </Select>
-        </FormControl>
-        C:
-        <TextField
-          id="outlined-basic"
-          onChange={(e) => onChangeC(e)}
-          label="Constante"
-          variant="outlined"
-        />
-        <div> {result} </div>
-        <button onClick={onClick}> cargar </button>{" "}
-        <HighchartsReact highcharts={Highcharts} options={options} />{" "}
-     <div>{A}X{B}Y{fill}{C}</div>
+            {data.map((equation, index) => (
+              <Grid
+                container
+                item
+                direction="row"
+                spacing={2}
+                justify="center"
+                alignItems="center"
+              >
+                <Grid item xs={2}>
+                  <TextField
+                    className={classes.input}
+                    fullWidth
+                    id="x"
+                    name="x_coef"
+                    onChange={(e) => onChange(e, index)}
+                    type="number"
+                    value={equation.x_coef}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">x</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    className={classes.input}
+                    fullWidth
+                    id="y"
+                    name="y_coef"
+                    onChange={(e) => onChange(e, index)}
+                    type="number"
+                    value={equation.y_coef}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">y</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <FormControl className={classes.formControl}>
+                    <Select
+                      fullWidth
+                      id="constant"
+                      // label="Inecuación"
+                      name="symbol"
+                      style={{ textAlign: "center" }}
+                      onChange={(e) => onChange(e, index)}
+                      value={equation.symbol}
+                    >
+                      <MenuItem value={">="}>{`>=`}</MenuItem>
+                      <MenuItem value={"<="}>{`<=`}</MenuItem>
+                      <MenuItem value={">"}> {">"}</MenuItem>
+                      <MenuItem value={"<"}>{"<"}</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={2}>
+                  <TextField
+                    className={classes.input}
+                    fullWidth
+                    id="b"
+                    name="const"
+                    onChange={(e) => onChange(e, index)}
+                    type="number"
+                    value={equation.const}
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <button onClick={() => onClick(index)}> cargar </button>
+                </Grid>
+              </Grid>
+            ))}
+            <Grid item>
+              <IconButton onClick={addRow} color="primary">
+                <AddIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Drawer>
+        <Grid
+          container
+          item
+          direction="column"
+          xs={12}
+          sm={12}
+          md={6}
+          lg={6}
+          xl={6}
+          className={clsx(classes.content, {
+            [classes.contentShift]: open,
+          })}
+        >
+          <HighchartsReact highcharts={Highcharts} options={options} />{" "}
+        </Grid>
+      </Grid>
     </div>
   );
 }

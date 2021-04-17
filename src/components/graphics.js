@@ -13,6 +13,7 @@ import AddIcon from "@material-ui/icons/Add";
 import Drawer from "@material-ui/core/Drawer";
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import CustomizedSlider from './Slider'
 
 const drawerWidth = 460;
 
@@ -71,15 +72,11 @@ export default function Graphic() {
   const [options, setOptions] = useState({
     chart: {
       type: "area",
+      zoomType: 'xy'
     },
-    title: {
-      text: "My chart",
-    },
-    series: [
-      {
-        data: [{}],
-      },
-    ],
+    title: null,
+    series: [],
+    credits:false,
     plotOptions: {
       series: {
         marker: {
@@ -89,7 +86,7 @@ export default function Graphic() {
     },
   });
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -108,17 +105,22 @@ export default function Graphic() {
   function onClick(idx) {
     setOptions({
       ...options,
-      series: [
+      series: [...options.series,
         {
           data: Line(
             parseInt(data[idx].x_coef),
             parseInt(data[idx].y_coef),
             parseInt(data[idx].const)
           ),
-          // threshold: fill === "Infinity" ? Infinity : -Infinity,
+          threshold: data[idx].symbol === ">" || data[idx].symbol === ">=" ? Infinity : -Infinity,
+          dashStyle: data[idx].symbol === ">" || data[idx].symbol === "<" ? 'longdash':'solid'
         },
+        
       ],
     });
+
+   
+
   }
 
   function point(a, b, c) {
@@ -251,6 +253,9 @@ export default function Graphic() {
               <IconButton onClick={addRow} color="primary">
                 <AddIcon />
               </IconButton>
+            </Grid>
+            <Grid item>
+              <CustomizedSlider/>
             </Grid>
           </Grid>
         </Drawer>

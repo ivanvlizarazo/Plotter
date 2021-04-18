@@ -114,7 +114,7 @@ export default function Graphic() {
   const [P, setP] = useState(0);
   const [X, setX] = useState();
   const [Y, setY] = useState();
-  const [target, setTarget] = useState();
+  const [errorMessage, setErrorMessage] = useState("");
   const [data, setData] = useState([
     { x_coef: "", y_coef: "", const: "", symbol: "<=" },
   ]);
@@ -137,10 +137,10 @@ export default function Graphic() {
     xAxis: {
       gridLineWidth: 1,
       gridZIndex: -9,
-      gridLineColor:"#999",
+      gridLineColor: "#999",
     },
     yAxis: {
-      gridLineColor:"#999",
+      gridLineColor: "#999",
       gridZIndex: -9,
       title: {
         text: "Valores",
@@ -148,10 +148,9 @@ export default function Graphic() {
     },
     tooltip: {
       formatter: function () {
-          return '(<b>' + this.x +
-              '</b>,<b>' + this.y + ')</b>';
-      }
-  },
+        return "(<b>" + this.x + "</b>,<b>" + this.y + ")</b>";
+      },
+    },
     title: null,
     series: [],
     credits: false,
@@ -175,7 +174,6 @@ export default function Graphic() {
   };
 
   function onChange(e, index) {
-    console.log('index: ',index)
     var state = [...data];
     var copySeries = [...options.series];
     state[index] = { ...state[index], [e.target.name]: e.target.value };
@@ -224,6 +222,17 @@ export default function Graphic() {
     return line;
   }
 
+  const disableButton = () => {
+    var isOK = true;
+    for (let [key, value] of Object.entries(data)) {
+      if (value.x_coef === "" || value.y_coef === "" || value.const === "") {
+        isOK = false;
+      }
+    }
+
+    return isOK;
+  };
+
   function addRow() {
     setData([...data, { x_coef: "", y_coef: "", const: "", symbol: "<=" }]);
   }
@@ -260,7 +269,6 @@ export default function Graphic() {
   }
 
   useEffect(() => {
-    console.log(X, Y);
     // setTarget(Line(X, Y, P));
     if (X !== undefined && Y !== undefined) {
       var copySeries = [...options.series];
@@ -343,6 +351,7 @@ export default function Graphic() {
                 direction="row"
                 justify="space-evenly"
                 alignItems="center"
+                key={index}
               >
                 <Grid item>
                   <Avatar
@@ -430,6 +439,7 @@ export default function Graphic() {
                 className={classes.buttonAdd}
                 onClick={addRow}
                 color="primary"
+                disabled={disableButton() !== true}
               >
                 <AddIcon /> Añadir inecuación
               </Button>
@@ -499,8 +509,11 @@ export default function Graphic() {
           <HighchartsReact highcharts={Highcharts} options={options} />{" "}
           <Alert severity="info">
             <AlertTitle>Ayuda</AlertTitle>
-            Zoom: haz clic y arrastra para seleccionar el área en la que deseas hacer zoom<br/>
-            Mover: presiona Shift mientras haces clic para desplazarte por la gráfica
+            Zoom: haz clic y arrastra para seleccionar el área en la que deseas
+            hacer zoom
+            <br />
+            Mover: presiona Shift mientras haces clic para desplazarte por la
+            gráfica
           </Alert>
         </Grid>
       </Grid>

@@ -5,7 +5,6 @@ import Grid from "@material-ui/core/Grid";
 import Slider from "@material-ui/core/Slider";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import { theme } from "highcharts";
 
 const useStyles = makeStyles((theme) => ({
   root: {

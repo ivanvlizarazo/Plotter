@@ -18,18 +18,22 @@ import {
 } from "@material-ui/core";
 
 import AddIcon from "@material-ui/icons/Add";
-import Divider from '@material-ui/core/Divider';
+import Divider from "@material-ui/core/Divider";
 import Drawer from "@material-ui/core/Drawer";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CustomizedSlider from "./Slider";
+import { Alert, AlertTitle } from "@material-ui/lab";
+Highcharts.setOptions({
+  lang: { resetZoom: "Restablecer zoom", resetZoomTitle: "Restablecer zoom" },
+});
 
-const drawerWidth = 370;
+const drawerWidth = 380;
 const palette = [
   "#FB5012",
   "#00EAE4",
-  "#CBBAED",
+  "#3A1772",
   "#E9DF00",
   "#D61F34",
   "#FFD275",
@@ -48,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
     margin: "15px 0 50px 0 ",
   },
   formControl: {
-    minWidth: 65,
+    minWidth: 55,
   },
   input: {
     "& .MuiInputBase-input": {
@@ -57,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawer: {
     width: drawerWidth,
-    marginBottom: '15px'
+    marginBottom: "15px",
   },
   drawerHeader: {
     display: "flex",
@@ -124,9 +128,12 @@ export default function Graphic() {
       },
       panKey: "shift",
     },
-    mapNavigation: {
-      enableMouseWheelZoom: true
-  },
+    navigation: {
+      menuStyle: {
+        background: "#E0E0E0",
+      },
+    },
+    exporting: true,
     xAxis: {
       gridLineWidth: 1,
     },
@@ -225,7 +232,6 @@ export default function Graphic() {
     } else {
       state.splice(index, 1);
       for (let [key, value] of Object.entries(copySeries)) {
-        
         var copyValue = { ...value };
         copyValue["color"] = palette[parseInt(key % 10)];
         copyValue["name"] = `Función ${parseInt(key) + 1}`;
@@ -243,10 +249,9 @@ export default function Graphic() {
   }
 
   useEffect(() => {
-    console.log(X, Y)
+    console.log(X, Y);
     // setTarget(Line(X, Y, P));
-    if (X!==undefined && Y !==undefined) {
-      
+    if (X !== undefined && Y !== undefined) {
       var copySeries = [...options.series];
       var FO = false;
       var indexFO = null;
@@ -312,7 +317,14 @@ export default function Graphic() {
               </IconButton>
             </Tooltip>
           </div>
-          <Grid container item direction="column" xs={11} alignItems="center" style={{paddingBottom: '20px'}}>
+          <Grid
+            container
+            item
+            direction="column"
+            xs={11}
+            alignItems="center"
+            style={{ paddingBottom: "20px" }}
+          >
             {data.map((equation, index) => (
               <Grid
                 container
@@ -411,10 +423,10 @@ export default function Graphic() {
                 <AddIcon /> Añadir inecuación
               </Button>
             </Grid>
-            <Divider/>
+            <Divider />
             <Grid item>
-                <h4>Función objetivo:</h4>
-              </Grid>
+              <h4>Función objetivo:</h4>
+            </Grid>
             <Grid
               container
               item
@@ -422,7 +434,6 @@ export default function Graphic() {
               justify="space-evenly"
               alignItems="center"
             >
-              
               <Grid item xs={2}>
                 <TextField
                   className={classes.input}
@@ -475,6 +486,11 @@ export default function Graphic() {
           })}
         >
           <HighchartsReact highcharts={Highcharts} options={options} />{" "}
+          <Alert severity="info">
+            <AlertTitle>Ayuda</AlertTitle>
+            Zoom: haz clic y arrastra para seleccionar el área en la que deseas hacer zoom<br/>
+            Mover: presiona Shift mientras haces clic para desplazarte por la gráfica
+          </Alert>
         </Grid>
       </Grid>
     </div>

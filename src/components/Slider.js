@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 const PrettoSlider = withStyles({
   root: {
-    color: "#52af77",
+    color: "#000",
     height: 8,
     alignContent: "center",
     alignItems: "center",
@@ -50,7 +50,7 @@ export default function CustomizedSlider(props) {
   const [value, setValue] = useState(0);
   const [min, setMin] = useState(0);
   const [max, setMax] = useState(100);
-  props.getPValue(value)
+  props.getPValue(value);
 
   const handleSliderChange = (event, newValue) => {
     if (isNaN(min)) {
@@ -73,7 +73,7 @@ export default function CustomizedSlider(props) {
     } else if (number < max || isNaN(max)) {
       setValue(number);
       setMin(number);
-      if (number >= 100 &&  isNaN(max)) {
+      if (number >= 100 && isNaN(max)) {
         setMax(number + 100);
       }
     }
@@ -84,20 +84,44 @@ export default function CustomizedSlider(props) {
       setMax(number);
       setValue(0);
     } else if (number > min || isNaN(min)) {
-      console.log("entra");
       setMax(number);
       if (value > number) {
         setValue(number);
       }
-      if (number <= 0 &&  isNaN(min)) {
+      if (number <= 0 && isNaN(min)) {
         setMin(number - 100);
       }
     }
   }
 
+  function changeP(value) {
+    if (value <= min) {
+      setValue(min);
+    } else if (value >= max) {
+      setValue(max);
+    } else {
+      setValue(value);
+    }
+  }
+
   return (
     <div className={classes.root}>
-      <Typography gutterBottom>P = {value}</Typography>
+      <Grid container direction="row" justify="flex-start" alignItems="center">
+        <Grid item xs={2}>
+          <Typography gutterBottom>P = </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <TextField
+            id="standard-number"
+            type="number"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            value={value}
+            onChange={(e) => changeP(parseInt(e.target.value))}
+          />
+        </Grid>
+      </Grid>
       <PrettoSlider
         valueLabelDisplay="auto"
         aria-label="pretto slider"

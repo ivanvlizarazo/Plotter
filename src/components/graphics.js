@@ -21,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
+  buttonAdd: {
+    margin: "15px 0 50px 0 ",
+  },
   formControl: {
     minWidth: 65,
   },
@@ -63,6 +66,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const pallete = ["#ff4", "#54f", "#af4"];
+
 export default function Graphic() {
   const classes = useStyles();
   const [P, setP] = useState(0);
@@ -75,8 +80,10 @@ export default function Graphic() {
 
   const [options, setOptions] = useState({
     chart: {
-      type: "area",
       zoomType: "xy",
+    },
+    xAxis: {
+      gridLineWidth: 1,
     },
     title: null,
     series: [],
@@ -102,30 +109,57 @@ export default function Graphic() {
 
   function onChange(e, index) {
     var state = [...data];
+    var copySeries = [...options.series];
     state[index] = { ...state[index], [e.target.name]: e.target.value };
     setData(state);
-  }
+    if (copySeries.length === index) {
+      copySeries.push({
+        name: `Función ${index + 1}`,
+        color: pallete[index],
+        fillOpacity: 0.1,
+        type: "area",
+        data: Line(
+          parseInt(state[index].x_coef),
+          parseInt(state[index].y_coef),
+          parseInt(state[index].const)
+        ),
+        threshold:
+          state[index].symbol === ">" || state[index].symbol === ">="
+            ? Infinity
+            : -Infinity,
+        dashStyle:
+          state[index].symbol === ">" || state[index].symbol === "<"
+            ? "longdash"
+            : "solid",
+      });
+    } else {
+      copySeries[index] = {
+        name: `Función ${index + 1}`,
+        color: pallete[index],
+        fillOpacity: 0.1,
+        type: "area",
+        data: Line(
+          parseInt(state[index].x_coef),
+          parseInt(state[index].y_coef),
+          parseInt(state[index].const)
+        ),
+        threshold:
+          state[index].symbol === ">" || state[index].symbol === ">="
+            ? Infinity
+            : -Infinity,
+        dashStyle:
+          state[index].symbol === ">" || state[index].symbol === "<"
+            ? "longdash"
+            : "solid",
+      };
+    }
 
-  function onClick(idx) {
     setOptions({
       ...options,
-      series: [...options.series,
-        { name:`Función ${idx+1}`,
-          data: Line(
-            parseInt(data[idx].x_coef),
-            parseInt(data[idx].y_coef),
-            parseInt(data[idx].const)
-          ),
-          threshold:
-            data[idx].symbol === ">" || data[idx].symbol === ">="
-              ? Infinity
-              : -Infinity,
-          dashStyle:
-            data[idx].symbol === ">" || data[idx].symbol === "<"
-              ? "longdash"
-              : "solid",
-        },
-      ],
+      chart: {
+        zoomType: "xy",
+      },
+      series: copySeries,
     });
   }
 
@@ -145,17 +179,60 @@ export default function Graphic() {
     setData([...data, { x_coef: "", y_coef: "", const: "", symbol: "<=" }]);
   }
 
+ 
+
   function getPValue(value) {
     setP(value);
   }
 
+  function deleteFunction(e, index) {
+
+    console.log(index)
+    var copySeries = [...options.series];
+    console.log(copySeries);
+
+  
+  }
+
   useEffect(() => {
-    setTarget(Line(X, Y, P));
+    // setTarget(Line(X, Y, P));
+    if (X && Y) {
+      var copySeries = [...options.series];
+      var FO = false;
+      var indexFO = null;
+      for (let [key, value] of Object.entries(copySeries)) {
+        if (value.name === "Función objetivo") {
+          FO = true;
+          indexFO = key;
+        }
+      }
+
+      if (!FO) {
+        copySeries.push({
+          name: `Función objetivo`,
+          color: "#000",
+          data: Line(X, Y, P),
+          type: "line",
+        });
+      } else {
+        copySeries[indexFO] = {
+          name: `Función objetivo`,
+          color: "#000",
+          data: Line(X, Y, P),
+          type: "line",
+        };
+      }
+      setOptions({
+        ...options,
+
+        series: copySeries,
+      });
+    }
   }, [X, Y, P]);
 
   return (
     <div className={classes.root}>
-      {console.log(target)}
+      {/* {options.series.length !== 0 ? console.log(options.series) : null} */}
       <Grid container direction="row" spacing={2}>
         <div>
           <IconButton
@@ -257,66 +334,73 @@ export default function Graphic() {
                   />
                 </Grid>
                 <Grid item xs={2}>
-                  <button onClick={() => onClick(index)}> cargar </button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={(e) => deleteFunction(e, index)}
+                  >
+                    Eliminar
+                  </Button>
                 </Grid>
               </Grid>
             ))}
             <Grid item>
-              <IconButton onClick={addRow} color="primary">
-                <AddIcon />
-              </IconButton>
+              <Button
+                className={classes.buttonAdd}
+                onClick={addRow}
+                color="primary"
+              >
+                <AddIcon /> Añadir función
+              </Button>
             </Grid>
 
-            
-              
-              <Grid
-                container
-                item
-                direction="row"
-                spacing={2}
-                justify="center"
-                alignItems="center"
-              >
-                <Grid item xs={4}>
-                  Funcion objetivo
-                </Grid>
-                <Grid item xs={2}>
-                  <TextField
-                    className={classes.input}
-                    fullWidth
-                    id="X"
-                    name="const"
-                    onChange={(e) => setX(parseInt(e.target.value))}
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">X</InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={2}>
-                  <TextField
-                    className={classes.input}
-                    fullWidth
-                    id="Y"
-                    name="const"
-                    onChange={(e) => setY(parseInt(e.target.value))}
-                    type="number"
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">Y</InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <div> = P</div>
-                </Grid>
+            <Grid
+              container
+              item
+              direction="row"
+              spacing={2}
+              justify="center"
+              alignItems="center"
+            >
+              <Grid item xs={4}>
+                Función objetivo
               </Grid>
-             
-                <CustomizedSlider getPValue={getPValue} />
-             
+              <Grid item xs={2}>
+                <TextField
+                  className={classes.input}
+                  fullWidth
+                  id="X"
+                  name="const"
+                  onChange={(e) => setX(parseInt(e.target.value))}
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">X</InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={2}>
+                <TextField
+                  className={classes.input}
+                  fullWidth
+                  id="Y"
+                  name="const"
+                  onChange={(e) => setY(parseInt(e.target.value))}
+                  type="number"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">Y</InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <div> = P</div>
+              </Grid>
+            </Grid>
+
+            <CustomizedSlider getPValue={getPValue} />
           </Grid>
         </Drawer>
         <Grid

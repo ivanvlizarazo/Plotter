@@ -136,12 +136,22 @@ export default function Graphic() {
     exporting: true,
     xAxis: {
       gridLineWidth: 1,
+      gridZIndex: -9,
+      gridLineColor:"#999",
     },
     yAxis: {
+      gridLineColor:"#999",
+      gridZIndex: -9,
       title: {
         text: "Valores",
       },
     },
+    tooltip: {
+      formatter: function () {
+          return '(<b>' + this.x +
+              '</b>,<b>' + this.y + ')</b>';
+      }
+  },
     title: null,
     series: [],
     credits: false,
@@ -165,6 +175,7 @@ export default function Graphic() {
   };
 
   function onChange(e, index) {
+    console.log('index: ',index)
     var state = [...data];
     var copySeries = [...options.series];
     state[index] = { ...state[index], [e.target.name]: e.target.value };
@@ -207,7 +218,7 @@ export default function Graphic() {
 
   function Line(a, b, c) {
     var line = [];
-    for (var i = -100; i <= 100; i++) {
+    for (var i = -50; i <= 50; i++) {
       line.push(point(a * i, b, c));
     }
     return line;

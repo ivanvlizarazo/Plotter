@@ -8,11 +8,19 @@ import clsx from "clsx";
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Button, Grid, IconButton, InputAdornment } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import Drawer from "@material-ui/core/Drawer";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import DeleteIcon from '@material-ui/icons/Delete';
 import CustomizedSlider from "./Slider";
 
 const drawerWidth = 460;
@@ -20,6 +28,7 @@ const drawerWidth = 460;
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    background: "#00f0"
   },
   buttonAdd: {
     margin: "15px 0 50px 0 ",
@@ -34,10 +43,18 @@ const useStyles = makeStyles((theme) => ({
   },
   drawer: {
     width: drawerWidth,
-    flexShrink: 0,
+  },
+  drawerHeader: {
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: "flex-end",
   },
   drawerPaper: {
     width: drawerWidth,
+    boxShadow: "2px 0px 8px 0px lightgrey",
   },
   content: {
     flexGrow: 1,
@@ -58,11 +75,13 @@ const useStyles = makeStyles((theme) => ({
   menuButton: {
     marginLeft: theme.spacing(2),
     marginTop: theme.spacing(2),
-    background: theme.palette.primary.main,
-    color: "#fff",
+    color: theme.palette.primary.main,
   },
   hide: {
     display: "none",
+  },
+  closeIcon: {
+    color: theme.palette.primary.main,
   },
 }));
 
@@ -240,15 +259,17 @@ export default function Graphic() {
     <div className={classes.root}>
       <Grid container direction="row" spacing={2}>
         <div>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, open && classes.hide)}
-          >
-            <ChevronRightIcon />
-          </IconButton>
+          <Tooltip title="Mostrar menú" placement="right">
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              edge="start"
+              className={clsx(classes.menuButton, open && classes.hide)}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <Drawer
           className={classes.drawer}
@@ -260,12 +281,14 @@ export default function Graphic() {
           }}
         >
           <div className={classes.drawerHeader}>
-            <IconButton
-              onClick={handleDrawerClose}
-              className={classes.menuButton}
-            >
-              <ChevronLeftIcon />
-            </IconButton>
+            <Tooltip title="Ocultar menú" placement="right">
+              <IconButton
+                onClick={handleDrawerClose}
+                className={classes.closeIcon}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+            </Tooltip>
           </div>
           <Grid container item direction="column" xs={11} alignItems="center">
             {data.map((equation, index) => (
@@ -277,6 +300,9 @@ export default function Graphic() {
                 justify="center"
                 alignItems="center"
               >
+                <Grid item xs={1}>
+                  <Typography >{index + 1 }</Typography>
+                </Grid>
                 <Grid item xs={2}>
                   <TextField
                     className={classes.input}
@@ -339,13 +365,13 @@ export default function Graphic() {
                   />
                 </Grid>
                 <Grid item xs={2}>
-                  <Button
-                    variant="contained"
+                  <Tooltip title="Eliminar inecuación" placement="right">
+                  <IconButton
                     color="secondary"
                     onClick={(e) => deleteFunction(e, index)}
                   >
-                    Eliminar
-                  </Button>
+                    <DeleteIcon/>
+                  </IconButton></Tooltip>
                 </Grid>
               </Grid>
             ))}

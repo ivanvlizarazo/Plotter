@@ -135,6 +135,12 @@ export default function Graphic() {
         text: "Valores",
       },
     },
+    tooltip: {
+      formatter: function () {
+          return '(<b>' + this.x +
+              '</b>,<b>' + this.y + ')</b>';
+      }
+  },
     title: null,
     series: [],
     credits: false,

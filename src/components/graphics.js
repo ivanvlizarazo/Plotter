@@ -104,6 +104,11 @@ export default function Graphic() {
     xAxis: {
       gridLineWidth: 1,
     },
+    yAxis: {
+      title: {        
+        text: 'Valores',    
+    }
+    },
     title: null,
     series: [],
     credits: false,
@@ -131,46 +136,30 @@ export default function Graphic() {
     var copySeries = [...options.series];
     state[index] = { ...state[index], [e.target.name]: e.target.value };
     setData(state);
+    const copy = {
+      name: `Función ${index + 1}`,
+      color: pallete[index],
+      fillOpacity: 0.1,
+      type: "area",
+      data: Line(
+        parseInt(state[index].x_coef),
+        parseInt(state[index].y_coef),
+        parseInt(state[index].const)
+      ),
+      threshold:
+        state[index].symbol === ">" || state[index].symbol === ">="
+          ? Infinity
+          : -Infinity,
+      dashStyle:
+        state[index].symbol === ">" || state[index].symbol === "<"
+          ? "longdash"
+          : "solid",
+    }
+
     if (copySeries.length === index) {
-      copySeries.push({
-        name: `Función ${index + 1}`,
-        color: pallete[index],
-        fillOpacity: 0.1,
-        type: "area",
-        data: Line(
-          parseInt(state[index].x_coef),
-          parseInt(state[index].y_coef),
-          parseInt(state[index].const)
-        ),
-        threshold:
-          state[index].symbol === ">" || state[index].symbol === ">="
-            ? Infinity
-            : -Infinity,
-        dashStyle:
-          state[index].symbol === ">" || state[index].symbol === "<"
-            ? "longdash"
-            : "solid",
-      });
+      copySeries.push(copy);
     } else {
-      copySeries[index] = {
-        name: `Función ${index + 1}`,
-        color: pallete[index],
-        fillOpacity: 0.1,
-        type: "area",
-        data: Line(
-          parseInt(state[index].x_coef),
-          parseInt(state[index].y_coef),
-          parseInt(state[index].const)
-        ),
-        threshold:
-          state[index].symbol === ">" || state[index].symbol === ">="
-            ? Infinity
-            : -Infinity,
-        dashStyle:
-          state[index].symbol === ">" || state[index].symbol === "<"
-            ? "longdash"
-            : "solid",
-      };
+      copySeries[index] = copy
     }
 
     setOptions({
@@ -203,9 +192,32 @@ export default function Graphic() {
   }
 
   function deleteFunction(e, index) {
-    console.log(index);
+    
     var copySeries = [...options.series];
-    console.log(copySeries);
+    var state = [...data];
+
+    copySeries.splice(index, 1);
+
+    if (state.length === 1) {
+      setData([{ x_coef: "", y_coef: "", const: "", symbol: "<=" }]);
+    } else {
+      state.splice(index, 1);
+      for (let [key, value] of Object.entries(copySeries)) {
+        console.log(typeof key, key)
+        var copyValue = { ...value };
+        copyValue["color"] = pallete[parseInt(key)];
+        copyValue["name"] = `Función ${parseInt(key)+1}`;
+        copySeries[parseInt(key)] = copyValue;
+      }
+      setData(state);
+    }
+    setOptions({
+      ...options,
+      chart: {
+        zoomType: "xy",
+      },
+      series: copySeries,
+    });
   }
 
   useEffect(() => {
@@ -221,20 +233,17 @@ export default function Graphic() {
         }
       }
 
+      const copy = {
+        name: `Función objetivo`,
+        color: "#000",
+        data: Line(X, Y, P),
+        type: "line",
+      }
+
       if (!FO) {
-        copySeries.push({
-          name: `Función objetivo`,
-          color: "#000",
-          data: Line(X, Y, P),
-          type: "line",
-        });
+        copySeries.push(copy);
       } else {
-        copySeries[indexFO] = {
-          name: `Función objetivo`,
-          color: "#000",
-          data: Line(X, Y, P),
-          type: "line",
-        };
+        copySeries[indexFO] = copy
       }
       setOptions({
         ...options,
@@ -246,7 +255,6 @@ export default function Graphic() {
 
   return (
     <div className={classes.root}>
-      {/* {options.series.length !== 0 ? console.log(options.series) : null} */}
       <Grid container direction="row" spacing={2}>
         <div>
           <Tooltip title="Mostrar menú" placement="right">

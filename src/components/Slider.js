@@ -11,6 +11,11 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: 300 + theme.spacing(3) * 2,
   },
+  input: {
+    "& .MuiInputBase-input": {
+      textAlign: "center",
+    },
+  },
 }));
 
 const PrettoSlider = withStyles({
@@ -107,11 +112,13 @@ export default function CustomizedSlider(props) {
   return (
     <div className={classes.root}>
       <Grid container direction="row" justify="flex-start" alignItems="center">
-        <Grid item xs={2}>
-          <Typography gutterBottom>P = </Typography>
+        <Grid item xs={1}></Grid>
+        <Grid item xs={1}>
+          <Typography>P = </Typography>
         </Grid>
         <Grid item xs={2}>
           <TextField
+            className={classes.input}
             id="standard-number"
             type="number"
             InputLabelProps={{
@@ -122,19 +129,23 @@ export default function CustomizedSlider(props) {
           />
         </Grid>
       </Grid>
-      <PrettoSlider
-        valueLabelDisplay="auto"
-        aria-label="pretto slider"
-        defaultValue={value}
-        value={value}
-        onChange={handleSliderChange}
-        min={isNaN(min) ? 0 : min}
-        max={isNaN(max) ? 100 : max}
-      />
-
+      <Grid container direction="row" justify="center" alignItems="center">
+        <Grid item xs={10}>
+          <PrettoSlider
+            valueLabelDisplay="auto"
+            aria-label="pretto slider"
+            defaultValue={value}
+            value={value}
+            onChange={handleSliderChange}
+            min={isNaN(min) ? 0 : min}
+            max={isNaN(max) ? 100 : max}
+          />
+        </Grid>
+      </Grid>
       <Grid container direction="row" justify="center" alignItems="center">
         <Grid item xs={2}>
           <TextField
+            className={classes.input}
             id="standard-number"
             type="number"
             InputLabelProps={{
@@ -144,11 +155,12 @@ export default function CustomizedSlider(props) {
             onChange={(e) => changeMin(e)}
           />
         </Grid>
-        <Grid item xs={4}>
-          {" <= "} P {" <= "}
+        <Grid item xs={3}>
+          <div style={{ textAlign: "center" }}>{" <= P <="}</div>
         </Grid>
         <Grid item xs={2}>
           <TextField
+            className={classes.input}
             id="standard-number2"
             type="number"
             InputLabelProps={{

@@ -9,26 +9,40 @@ import clsx from "clsx";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import {
+  Avatar,
   Button,
   Grid,
   IconButton,
   InputAdornment,
   Tooltip,
-  Typography,
 } from "@material-ui/core";
+
 import AddIcon from "@material-ui/icons/Add";
+import Divider from '@material-ui/core/Divider';
 import Drawer from "@material-ui/core/Drawer";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from "@material-ui/icons/Delete";
 import CustomizedSlider from "./Slider";
 
-const drawerWidth = 460;
+const drawerWidth = 370;
+const palette = [
+  "#FB5012",
+  "#00EAE4",
+  "#CBBAED",
+  "#E9DF00",
+  "#D61F34",
+  "#FFD275",
+  "#0CCE6B",
+  "#8A4F7D",
+  "#F962A6",
+  "#BBAB8B",
+];
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    background: "#00f0"
+    background: "#00f0",
   },
   buttonAdd: {
     margin: "15px 0 50px 0 ",
@@ -43,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
   drawer: {
     width: drawerWidth,
+    marginBottom: '15px'
   },
   drawerHeader: {
     display: "flex",
@@ -83,9 +98,12 @@ const useStyles = makeStyles((theme) => ({
   closeIcon: {
     color: theme.palette.primary.main,
   },
+  small: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+    fontSize: "14px",
+  },
 }));
-
-const pallete = ["#ff4", "#54f", "#af4"];
 
 export default function Graphic() {
   const classes = useStyles();
@@ -100,14 +118,22 @@ export default function Graphic() {
   const [options, setOptions] = useState({
     chart: {
       zoomType: "xy",
+      panning: {
+        enabled: true,
+        type: "xy",
+      },
+      panKey: "shift",
     },
+    mapNavigation: {
+      enableMouseWheelZoom: true
+  },
     xAxis: {
       gridLineWidth: 1,
     },
     yAxis: {
-      title: {        
-        text: 'Valores',    
-    }
+      title: {
+        text: "Valores",
+      },
     },
     title: null,
     series: [],
@@ -137,9 +163,9 @@ export default function Graphic() {
     state[index] = { ...state[index], [e.target.name]: e.target.value };
     setData(state);
     const copy = {
-      name: `Función ${index + 1}`,
-      color: pallete[index],
-      fillOpacity: 0.1,
+      name: `Inecuación ${index + 1}`,
+      color: palette[index % 10],
+      fillOpacity: 0.2,
       type: "area",
       data: Line(
         parseInt(state[index].x_coef),
@@ -154,19 +180,16 @@ export default function Graphic() {
         state[index].symbol === ">" || state[index].symbol === "<"
           ? "longdash"
           : "solid",
-    }
+    };
 
     if (copySeries.length === index) {
       copySeries.push(copy);
     } else {
-      copySeries[index] = copy
+      copySeries[index] = copy;
     }
 
     setOptions({
       ...options,
-      chart: {
-        zoomType: "xy",
-      },
       series: copySeries,
     });
   }
@@ -192,7 +215,6 @@ export default function Graphic() {
   }
 
   function deleteFunction(e, index) {
-    
     var copySeries = [...options.series];
     var state = [...data];
 
@@ -203,10 +225,10 @@ export default function Graphic() {
     } else {
       state.splice(index, 1);
       for (let [key, value] of Object.entries(copySeries)) {
-        console.log(typeof key, key)
+        console.log(typeof key, key);
         var copyValue = { ...value };
-        copyValue["color"] = pallete[parseInt(key)];
-        copyValue["name"] = `Función ${parseInt(key)+1}`;
+        copyValue["color"] = palette[parseInt(key % 10)];
+        copyValue["name"] = `Función ${parseInt(key) + 1}`;
         copySeries[parseInt(key)] = copyValue;
       }
       setData(state);
@@ -238,12 +260,12 @@ export default function Graphic() {
         color: "#000",
         data: Line(X, Y, P),
         type: "line",
-      }
+      };
 
       if (!FO) {
         copySeries.push(copy);
       } else {
-        copySeries[indexFO] = copy
+        copySeries[indexFO] = copy;
       }
       setOptions({
         ...options,
@@ -255,7 +277,7 @@ export default function Graphic() {
 
   return (
     <div className={classes.root}>
-      <Grid container direction="row" spacing={2}>
+      <Grid container direction="row">
         <div>
           <Tooltip title="Mostrar menú" placement="right">
             <IconButton
@@ -288,18 +310,22 @@ export default function Graphic() {
               </IconButton>
             </Tooltip>
           </div>
-          <Grid container item direction="column" xs={11} alignItems="center">
+          <Grid container item direction="column" xs={11} alignItems="center" style={{paddingBottom: '20px'}}>
             {data.map((equation, index) => (
               <Grid
                 container
                 item
                 direction="row"
-                spacing={2}
-                justify="center"
+                justify="space-evenly"
                 alignItems="center"
               >
-                <Grid item xs={1}>
-                  <Typography >{index + 1 }</Typography>
+                <Grid item>
+                  <Avatar
+                    className={classes.small}
+                    style={{ background: palette[index % 10] }}
+                  >
+                    {index + 1}
+                  </Avatar>
                 </Grid>
                 <Grid item xs={2}>
                   <TextField
@@ -362,14 +388,15 @@ export default function Graphic() {
                     value={equation.const}
                   />
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={1}>
                   <Tooltip title="Eliminar inecuación" placement="right">
-                  <IconButton
-                    color="secondary"
-                    onClick={(e) => deleteFunction(e, index)}
-                  >
-                    <DeleteIcon/>
-                  </IconButton></Tooltip>
+                    <IconButton
+                      color="secondary"
+                      onClick={(e) => deleteFunction(e, index)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
             ))}
@@ -379,21 +406,21 @@ export default function Graphic() {
                 onClick={addRow}
                 color="primary"
               >
-                <AddIcon /> Añadir función
+                <AddIcon /> Añadir inecuación
               </Button>
             </Grid>
-
+            <Divider/>
+            <Grid item>
+                <h4>Función objetivo:</h4>
+              </Grid>
             <Grid
               container
               item
               direction="row"
-              spacing={2}
-              justify="center"
+              justify="space-evenly"
               alignItems="center"
             >
-              <Grid item xs={4}>
-                Función objetivo
-              </Grid>
+              
               <Grid item xs={2}>
                 <TextField
                   className={classes.input}
@@ -424,8 +451,8 @@ export default function Graphic() {
                   }}
                 />
               </Grid>
-              <Grid item xs={3}>
-                <div> = P</div>
+              <Grid item xs={2}>
+                <span> = P</span>
               </Grid>
             </Grid>
 

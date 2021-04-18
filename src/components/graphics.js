@@ -200,7 +200,7 @@ export default function Graphic() {
 
   function Line(a, b, c) {
     var line = [];
-    for (var i = 0; i <= 60; i++) {
+    for (var i = -100; i <= 100; i++) {
       line.push(point(a * i, b, c));
     }
     return line;
@@ -225,7 +225,7 @@ export default function Graphic() {
     } else {
       state.splice(index, 1);
       for (let [key, value] of Object.entries(copySeries)) {
-        console.log(typeof key, key);
+        
         var copyValue = { ...value };
         copyValue["color"] = palette[parseInt(key % 10)];
         copyValue["name"] = `Función ${parseInt(key) + 1}`;
@@ -243,15 +243,17 @@ export default function Graphic() {
   }
 
   useEffect(() => {
+    console.log(X, Y)
     // setTarget(Line(X, Y, P));
-    if (X && Y) {
+    if (X!==undefined && Y !==undefined) {
+      
       var copySeries = [...options.series];
       var FO = false;
       var indexFO = null;
       for (let [key, value] of Object.entries(copySeries)) {
         if (value.name === "Función objetivo") {
           FO = true;
-          indexFO = key;
+          indexFO = parseInt(key);
         }
       }
 

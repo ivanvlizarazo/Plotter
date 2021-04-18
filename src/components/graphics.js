@@ -253,9 +253,13 @@ export default function Graphic() {
       state.splice(index, 1);
       for (let [key, value] of Object.entries(copySeries)) {
         var copyValue = { ...value };
-        copyValue["color"] = palette[parseInt(key % 10)];
-        copyValue["name"] = `Función ${parseInt(key) + 1}`;
+        if (copyValue["color"] !== "#000") {
+          
+          copyValue["color"] = palette[parseInt(key % 10)];
+          copyValue["name"] = `Función ${parseInt(key) + 1}`;
+        }
         copySeries[parseInt(key)] = copyValue;
+        
       }
       setData(state);
     }
@@ -286,6 +290,7 @@ export default function Graphic() {
         color: "#000",
         data: Line(X, Y, P),
         type: "line",
+        dashStyle:'Solid'
       };
 
       if (!FO) {
@@ -299,7 +304,7 @@ export default function Graphic() {
         series: copySeries,
       });
     }
-  }, [X, Y, P]);
+  }, [X, Y, P,data]);
 
   return (
     <div className={classes.root}>

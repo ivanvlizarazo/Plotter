@@ -467,9 +467,9 @@ export default function Graphic() {
           direction="column"
           xs={12}
           sm={12}
-          md={6}
-          lg={6}
-          xl={6}
+          md={8}
+          lg={8}
+          xl={8}
           className={clsx(classes.content, {
             [classes.contentShift]: open,
           })}

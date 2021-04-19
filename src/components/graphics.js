@@ -128,12 +128,6 @@ export default function Graphic() {
       },
       panKey: "shift",
     },
-    navigation: {
-      menuStyle: {
-        background: "#E0E0E0",
-      },
-    },
-    exporting: true,
     xAxis: {
       gridLineWidth: 1,
       gridZIndex: -9,
@@ -156,6 +150,7 @@ export default function Graphic() {
     credits: false,
     plotOptions: {
       series: {
+        pointStart: -50,
         marker: {
           enabled: false,
         },
